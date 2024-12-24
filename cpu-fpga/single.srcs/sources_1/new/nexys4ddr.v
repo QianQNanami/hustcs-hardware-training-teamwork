@@ -3,9 +3,13 @@
 module Nexys4DDR (
     input clk,
     input [15:0] SW,
+    input UP, DOWN, CENTER, LEFT, RIGHT,
     output [7:0] SEG,
     output [7:0] AN,
-    output [15:0] LED
+    output [15:0] LED,
+    output h_sync,
+    output v_sync,
+    output [11:0] vga
 );
     // On the Nexys4 DDR, the SW[15] is the leftmost switch
 
@@ -27,7 +31,7 @@ module Nexys4DDR (
 
     // Use SW[0] for button Go
 
-    assign LED = SW;
+    // assign LED = SW;
     wire Go, CLKLED;
     assign Go = SW[0];
     wire [31:0] LedData, PC, IR;
@@ -76,7 +80,7 @@ module Nexys4DDR (
             4'b0100: CLKCPU = CLK128;
             4'b0010: CLKCPU = CLK32;
             4'b0001: CLKCPU = CLK4;
-            default: CLKCPU = CLK1;
+            default: CLKCPU = clk;
         endcase
     end
 
@@ -96,13 +100,19 @@ module Nexys4DDR (
     SingleCycleCPU cpu(
         .Go(Go),
         .CLK(CLKCPU),
+        .clk(clk),
+        .UP(UP), .DOWN(DOWN), .CENTER(CENTER), .LEFT(LEFT), .RIGHT(RIGHT),
         .LedData(LedData),
         .PC(PC),
         .IR(IR),
         .MDin(MDin),
         .RDin(RDin),
         .MemWrite(MemWrite),
-        .RegWrite(RegWrite)
+        .RegWrite(RegWrite),
+        .LED(LED),
+        .h_sync(h_sync),
+        .v_sync(v_sync),
+        .vga(vga)
     );
 
     reg [3:0] LedSplitData;

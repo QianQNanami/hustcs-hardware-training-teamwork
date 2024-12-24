@@ -3,20 +3,38 @@
 module SingleCycleCPU (
     input Go,
     input CLK,
+    input clk,
+    input UP, DOWN, CENTER, LEFT, RIGHT, // interrupt
+
     output [31:0] LedData,
     output [31:0] PC,
     output [31:0] IR,
     output [31:0] MDin,
     output [31:0] RDin,
+    output [15:0] LED,
     output MemWrite,
-    output RegWrite
+    output RegWrite,
+
+    output h_sync,v_sync,
+    output [11:0] vga
 );
 
     wire [31:0] PCADDR, PCP4;
     wire [3:0] AluOPS;
-    wire halt, JALS, JALRS, URETS, LBUS, BLTUS, BEQS, BNES, MemToRegS, AluSrcBS;
+    wire halt, JALS, JALRS, uret, LBUS, BLTUS, BEQS, BNES, MemToRegS, AluSrcBS;
     wire RSread, RTread, CSC, Stype, ecall;
     wire [4:0] R1_wire, R2_wire;
+    
+    // VGA
+    wire [11:0] vaddr_x;
+    wire [10:0] vaddr_y;
+    wire [11:0] vdata;
+    wire clk_vga;
+
+    // interrupt 
+    wire [31:0] next_PC, EPC_out, EPCAddr_in, InterrAddr;
+    wire InterrEN, Interr;
+    wire uret1, uret2, uret3, uret4, uret5, Interrupt1, Interrupt2, Interrupt3, Interrupt4, Interrupt5;
     
     Register #(.WIDTH(32)) register_PC(
         .Din(PCADDR),
@@ -26,7 +44,7 @@ module SingleCycleCPU (
         .RST(1'b0)
     );
     InstructionROM ROM_instruction(
-        .Addr(PC[11:2]),
+        .Addr(PC[21:2]),
         .Data(IR)
     );
     Adder #(.WIDTH(32)) adder1(
@@ -53,7 +71,7 @@ module SingleCycleCPU (
         .BNE(BNES),
         .JALR(JALRS),
         .JAL(JALS),
-        .uret(URETS),
+        .uret(uret),
         .ecall(ecall)
     );
     MUX2x1 #(.DATAWIDTH(5)) muxR1(
@@ -161,11 +179,14 @@ module SingleCycleCPU (
 
     wire [31:0] MEMOUT;
     RAM ram(
-        .Addr(ALURet[11:2]),
+        .Addr(ALURet[22:2]),
         .Din(MDin),
         .Dout(MEMOUT),
         .Clk(CLK),
-        .str(MemWrite)
+        .str(MemWrite),
+        .vaddr_x(vaddr_x),
+        .vaddr_y(vaddr_y),
+        .vdata(vdata)
     );
     wire [7:0] mux_MEMOUT_result;
     MUX4x2 #(.DATAWIDTH(8)) mux_MEMOUT(
@@ -226,7 +247,7 @@ module SingleCycleCPU (
     MUX2x1 #(.DATAWIDTH(32)) mux_JALRS(
         .A(mux_JALS_result),
         .B(ALURet),
-        .Dout(PCADDR),
+        .Dout(next_PC),
         .Sel(JALRS)
     );
 
@@ -261,4 +282,34 @@ module SingleCycleCPU (
         .RST(1'b0)
     );
 
+    // interrupt
+    MUX2x1 #(32) interrAddr(.Dout(EPCAddr_in), .A(next_PC), .B(InterrAddr), .Sel(InterrEN)); // 2-way mul for interrupt
+    MUX2x1 #(32) EPCAddr(.Dout(PCADDR), .A(EPCAddr_in), .B(EPC_out), .Sel(uret));            // 2-way mul for epc interrupt
+
+    Interrupter Interrupter1(.CLK(CLK), .IR(UP),        .uret(uret1), .interrupt(Interrupt1), .LED(LED[0]));
+    Interrupter Interrupter2(.CLK(CLK), .IR(LEFT),      .uret(uret2), .interrupt(Interrupt2), .LED(LED[1]));
+    Interrupter Interrupter3(.CLK(CLK), .IR(CENTER),    .uret(uret3), .interrupt(Interrupt3), .LED(LED[2]));
+    Interrupter Interrupter4(.CLK(CLK), .IR(RIGHT),     .uret(uret4), .interrupt(Interrupt4), .LED(LED[3]));
+    Interrupter Interrupter5(.CLK(CLK), .IR(DOWN),      .uret(uret5), .interrupt(Interrupt5), .LED(LED[4]));
+    
+    EPC epc(.EN(InterrEN), .Din(next_PC), .Dout(EPC_out));
+    
+    Scheduler scheduler(.IRR1(Interrupt1), .IRR2(Interrupt2), .IRR3(Interrupt3), .IRR4(Interrupt4), .IRR5(Interrupt5),
+                        .uret1(uret1), .uret2(uret2), .uret3(uret3), .uret4(uret4), .uret5(uret5),
+                        .interr(Interr), .uret(uret), .interrEN(InterrEN), .CLK(CLK), .interrAddr(InterrAddr));
+    
+    InterrEn interren(.uret(uret), .CLK(CLK), .interr(Interr), .interrEN(InterrEN));
+
+
+    // VGA
+    clk_wiz_0 clk_wiz (.clk_in1(clk),.clk_out1(clk_vga));   // in: 100MHz, out: 65MHz
+    vga vga_display(
+        .clk(clk_vga),
+        .vdata(vdata),
+        .vaddr_x(vaddr_x),
+        .vaddr_y(vaddr_y),
+        .h_sync(h_sync),
+        .v_sync(v_sync),
+        .vga(vga)
+    );
 endmodule

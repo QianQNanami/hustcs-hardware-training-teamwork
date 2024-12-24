@@ -1,14 +1,24 @@
 #-----------------------------------------------------------
-# Vivado v2023.2 (64-bit)
-# SW Build 4029153 on Fri Oct 13 20:14:34 MDT 2023
-# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
-# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
-# Start of session at: Fri Nov 22 19:25:09 2024
-# Process ID: 14176
-# Current directory: D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.runs/impl_1
+# Vivado v2024.1 (64-bit)
+# SW Build 5076996 on Wed May 22 18:37:14 MDT 2024
+# IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
+# SharedData Build 5076995 on Wed May 22 18:29:18 MDT 2024
+# Start of session at: Mon Dec 23 23:03:18 2024
+# Process ID: 18284
+# Current directory: C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.runs/impl_1
 # Command line: vivado.exe -log Nexys4DDR.vdi -applog -product Vivado -messageDb vivado.pb -mode batch -source Nexys4DDR.tcl -notrace
-# Log file: D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.runs/impl_1/Nexys4DDR.vdi
-# Journal file: D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.runs/impl_1\vivado.jou
-# Running On: Expect2004, OS: Windows, CPU Frequency: 2688 MHz, CPU Physical cores: 14, Host memory: 16785 MB
+# Log file: C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.runs/impl_1/Nexys4DDR.vdi
+# Journal file: C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.runs/impl_1\vivado.jou
+# Running On        :ThinkBook
+# Platform          :Windows Server 2016 or Windows 10
+# Operating System  :22631
+# Processor Detail  :12th Gen Intel(R) Core(TM) i5-12500H
+# CPU Frequency     :3110 MHz
+# CPU Physical cores:12
+# CPU Logical cores :16
+# Host memory       :16892 MB
+# Swap memory       :13421 MB
+# Total Virtual     :30313 MB
+# Available Virtual :10363 MB
 #-----------------------------------------------------------
 source Nexys4DDR.tcl -notrace

@@ -1,12 +1,14 @@
 `timescale 1ns / 1ps
 
 module InstructionROM (
-    input wire [9:0] Addr,
+    input wire [19:0] Addr,
     output wire [31:0] Data
 );
-    reg [31:0] mem [0:1023];
+    reg [31:0] mem [0:2**20-1];
     initial begin
-        $readmemh("D:/LiuBainian/Project/HardwareCourseDesign/single-cycle-test.hex", mem, 0, 1023);
+        // C:/Data/project/hustcs-hardware-training-teamwork/src/vga_test/final.hex
+        // C:/Data/project/HUST_RISC-V_CPU/FPGA/bin/risc-v-benchmark_ccab.hex
+        $readmemh("C:/Data/project/hustcs-hardware-training-teamwork/src/vga_test/final.hex", mem, 0, 2**20-1);
     end
     assign Data = mem[Addr];
 endmodule

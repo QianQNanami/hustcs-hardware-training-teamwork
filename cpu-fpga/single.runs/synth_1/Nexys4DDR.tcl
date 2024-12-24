@@ -4,7 +4,7 @@
 
 set TIME_start [clock seconds] 
 namespace eval ::optrace {
-  variable script "D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.runs/synth_1/Nexys4DDR.tcl"
+  variable script "C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.runs/synth_1/Nexys4DDR.tcl"
   variable category "vivado_synth"
 }
 
@@ -55,58 +55,57 @@ if {$::dispatch::connected} {
   }
 }
 
-proc create_report { reportName command } {
-  set status "."
-  append status $reportName ".fail"
-  if { [file exists $status] } {
-    eval file delete [glob $status]
-  }
-  send_msg_id runtcl-4 info "Executing : $command"
-  set retval [eval catch { $command } msg]
-  if { $retval != 0 } {
-    set fp [open $status w]
-    close $fp
-    send_msg_id runtcl-5 warning "$msg"
-  }
-}
 OPTRACE "synth_1" START { ROLLUP_AUTO }
+set_param chipscope.maxJobs 4
+set_param xicom.use_bs_reader 1
+set_msg_config  -id {17-179}  -suppress 
 OPTRACE "Creating in-memory project" START { }
 create_project -in_memory -part xc7a100tcsg324-1
 
 set_param project.singleFileAddWarning.threshold 0
 set_param project.compositeFile.enableAutoGeneration 0
 set_param synth.vivado.isSynthRun true
-set_property webtalk.parent_dir D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.cache/wt [current_project]
-set_property parent.project_path D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.xpr [current_project]
+set_msg_config -source 4 -id {IP_Flow 19-2162} -severity warning -new_severity info
+set_property webtalk.parent_dir C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.cache/wt [current_project]
+set_property parent.project_path C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.xpr [current_project]
+set_property XPM_LIBRARIES XPM_CDC [current_project]
 set_property default_lib xil_defaultlib [current_project]
 set_property target_language Verilog [current_project]
-set_property ip_output_repo d:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.cache/ip [current_project]
+set_property ip_output_repo c:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.cache/ip [current_project]
 set_property ip_cache_permissions {read write} [current_project]
 OPTRACE "Creating in-memory project" END { }
 OPTRACE "Adding files" START { }
 read_verilog -library xil_defaultlib {
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/7SegDisplay.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/ClockDivider.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/LedCounter.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/adder.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/alu.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/calccontrol.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/comparator.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/controlsign.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/counter.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/hardware_line_layout.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/leftshifter.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/main.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/mux2x1.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/mux4x2.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/number_sign_extend.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/number_zero_extend.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/ram.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/regfile.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/register.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/rom.v
-  D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/sources_1/new/nexys4ddr.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/7SegDisplay.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/ClockDivider.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/LedCounter.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/adder.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/alu.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/calccontrol.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/comparator.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/controlsign.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/counter.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/hardware_line_layout.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/interrupt.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/leftshifter.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/main.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/mux2x1.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/mux4x2.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/mux8x3.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/number_sign_extend.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/number_zero_extend.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/ram.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/regfile.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/register.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/rom.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/vga.v
+  C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/new/nexys4ddr.v
 }
+read_ip -quiet C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/sources_1/ip/clk_wiz_0/clk_wiz_0.xci
+set_property used_in_implementation false [get_files -all c:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc]
+set_property used_in_implementation false [get_files -all c:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc]
+set_property used_in_implementation false [get_files -all c:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_ooc.xdc]
+
 OPTRACE "Adding files" END { }
 # Mark all dcp files as not used in implementation to prevent them from being
 # stitched into the results of this synthesis run. Any black boxes in the
@@ -116,12 +115,12 @@ OPTRACE "Adding files" END { }
 foreach dcp [get_files -quiet -all -filter file_type=="Design\ Checkpoint"] {
   set_property used_in_implementation false $dcp
 }
-read_xdc D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/constrs_1/imports/board/Nexys4DDR_Master.xdc
-set_property used_in_implementation false [get_files D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/constrs_1/imports/board/Nexys4DDR_Master.xdc]
+read_xdc C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/constrs_1/imports/board/Nexys4DDR_Master.xdc
+set_property used_in_implementation false [get_files C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/constrs_1/imports/board/Nexys4DDR_Master.xdc]
 
 set_param ips.enableIPCacheLiteLoad 1
 
-read_checkpoint -auto_incremental -incremental D:/LiuBainian/Project/HardwareCourseDesign/FPGA/single/single.srcs/utils_1/imports/synth_1/Nexys4DDR.dcp
+read_checkpoint -auto_incremental -incremental C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.srcs/utils_1/imports/synth_1/Nexys4DDR.dcp
 close [open __synthesis_is_running__ w]
 
 OPTRACE "synth_design" START { }
@@ -138,7 +137,7 @@ set_param constraints.enableBinaryConstraints false
 write_checkpoint -force -noxdef Nexys4DDR.dcp
 OPTRACE "write_checkpoint" END { }
 OPTRACE "synth reports" START { REPORT }
-create_report "synth_1_synth_report_utilization_0" "report_utilization -file Nexys4DDR_utilization_synth.rpt -pb Nexys4DDR_utilization_synth.pb"
+generate_parallel_reports -reports { "report_utilization -file Nexys4DDR_utilization_synth.rpt -pb Nexys4DDR_utilization_synth.pb"  } 
 OPTRACE "synth reports" END { }
 file delete __synthesis_is_running__
 close [open __synthesis_is_complete__ w]

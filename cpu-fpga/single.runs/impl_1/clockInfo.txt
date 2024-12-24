@@ -1,7 +1,7 @@
 -------------------------------------
-| Tool Version : Vivado v.2023.2
-| Date         : Fri Nov 22 19:24:09 2024
-| Host         : Expect2004
+| Tool Version : Vivado v.2024.1
+| Date         : Mon Dec 23 23:03:45 2024
+| Host         : ThinkBook
 | Design       : design_1
 | Device       : xc7a100t-csg324-1--
 -------------------------------------
