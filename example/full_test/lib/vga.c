@@ -6,10 +6,6 @@ void set_pixel(int x, int y, int c) {
   }
   int *vram = (int *)VRAM_BASE_ADDR;
   vram[VRAM_OFFSET(x, y)] = c;
-  // for (int i = 0; i < x; i++)
-  //   vram += VRAM_WIDTH;
-  // vram += y;
-  // *vram = c;
 }
 
 void clear_screen() {
