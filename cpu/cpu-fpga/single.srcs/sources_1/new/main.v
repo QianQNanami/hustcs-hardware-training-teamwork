@@ -7,8 +7,8 @@ module SingleCycleCPU (
     input UP, DOWN, CENTER, LEFT, RIGHT, // interrupt
 
     output [31:0] LedData,
-    output [31:0] PC,
-    output [31:0] IR,
+    output [31:0] oPC,
+    output [31:0] oIR,
     output [31:0] MDin,
     output [31:0] RDin,
     output [15:0] LED,
@@ -20,6 +20,11 @@ module SingleCycleCPU (
 );
 
     
+    assign oIR = 0;
+    assign MDin = 0;
+    assign RDin = 0;
+    assign MemWrite = 0;
+    assign RegWrite = 0;
     // VGA
     wire [11:0] vaddr_x;
     wire [10:0] vaddr_y;
@@ -33,6 +38,7 @@ module SingleCycleCPU (
     wire uret1, uret2, uret3, uret4, uret5, Interrupt1, Interrupt2, Interrupt3, Interrupt4, Interrupt5;
     
     reg [31:0] PC;
+    assign oPC = PC;
     wire [31:0] IR;
     reg uret;
 
@@ -49,6 +55,8 @@ module SingleCycleCPU (
     wire [31:0] rsval, rtval;
     reg [4:0] rs, rt;
     reg [31:0] Regin, rd;
+    reg [31:0] ADDImm, SLTImm, XORImm, ORImm, ANDImm;
+    reg [4:0] SLLIshamt, SRLshamt, SRAshamt;
     reg RegWE;
     RegFile regfile(
         .Din(Regin),
@@ -75,42 +83,44 @@ module SingleCycleCPU (
         .vdata(vdata)
     );
     
-
+    reg [4:0] op_code;
+    reg [2:0] funt3;
+    reg [31:0] Uimm, Jimm, Simm, Bimm, Iimm, LEDDATA;
     always @(posedge CLK) begin
         RegWE = 0; MemWE = 0;    
-        reg [5:0] op_code = IR[29:25];
-        reg [2:0] funt3 = IR[14:12];
+        op_code = IR[29:25];
+        funt3 = IR[14:12];
         if(op_code == 5'b01101) begin // LUI
-            reg [31:0] Uimm = {IR[31:12], 12'b0};
+            Uimm = {IR[31:12], 12'b0};
             Regin = Uimm;
             rd = IR[11:7];
             RegWE = 1;
             next_PC = PC + 4;
         end
         if(op_code == 5'b00101) begin // AUIPC
-            reg [31:0] Uimm = {IR[31:12], 12'b0};
+            Uimm = {IR[31:12], 12'b0};
             Regin = Uimm + PC;
             rd = IR[11:7];
             RegWE = 1;
             next_PC = PC + 4;
         end
         if(op_code == 5'b11011) begin // JAL
-            reg [31:0] Jimm = {{12{IR[31]}}, IR[19:12], IR[20], IR[30:21], 1'b0};
+            Jimm = {{12{IR[31]}}, IR[19:12], IR[20], IR[30:21], 1'b0};
             Regin = PC + 4;
             rd = IR[11:7];
             RegWE = 1;
             next_PC = PC + Jimm;
         end
         if(op_code == 5'b11001 && funt3 == 3'b000) begin // JALR
-            reg [31:0] Iimm = {{20{IR[31]}}, IR[31:20]};
+            Iimm = {{20{IR[31]}}, IR[31:20]};
             Regin = PC + 4;
             rd = IR[11:7];
             rs = IR[19:15];
             RegWE = 1;
             next_PC = rsval + Iimm;
         end
-        if(op_code == 5'11000 && funt3 == 3'b000) begin // BEQ
-            reg [31:0] Bimm = {{20{IR[31]}}, IR[7], IR[30:25], IR[11:8], 1'b0};
+        if(op_code == 5'b11000 && funt3 == 3'b000) begin // BEQ
+            Bimm = {{20{IR[31]}}, IR[7], IR[30:25], IR[11:8], 1'b0};
             rs = IR[19:15]; // rs1
             rt = IR[24:20]; // rs2
             if(rsval == rtval) begin
@@ -119,8 +129,8 @@ module SingleCycleCPU (
                 next_PC = PC + 4;
             end
         end
-        if(op_code == 5'11000 && funt3 == 3'b001) begin // BNE
-            reg [31:0] Bimm = {{20{IR[31]}}, IR[7], IR[30:25], IR[11:8], 1'b0};
+        if(op_code == 5'b11000 && funt3 == 3'b001) begin // BNE
+            Bimm = {{20{IR[31]}}, IR[7], IR[30:25], IR[11:8], 1'b0};
             rs = IR[19:15]; // rs1
             rt = IR[24:20]; // rs2
             if(rsval != rtval) begin
@@ -129,8 +139,8 @@ module SingleCycleCPU (
                 next_PC = PC + 4;
             end  
         end
-        if(op_code == 5'11000 && funt3 == 3'b100) begin // BLT
-            reg [31:0] Bimm = {{20{IR[31]}}, IR[7], IR[30:25], IR[11:8], 1'b0};
+        if(op_code == 5'b11000 && funt3 == 3'b100) begin // BLT
+            Bimm = {{20{IR[31]}}, IR[7], IR[30:25], IR[11:8], 1'b0};
             rs = IR[19:15]; // rs1
             rt = IR[24:20]; // rs2
             if($signed(rsval) < $signed(rtval)) begin
@@ -139,8 +149,8 @@ module SingleCycleCPU (
                 next_PC = PC + 4;
             end
         end
-        if(op_code == 5'11000 && funt3 == 3'b110) begin // BLTU
-            reg [31:0] Bimm = {{20{IR[31]}}, IR[7], IR[30:25], IR[11:8], 1'b0};
+        if(op_code == 5'b11000 && funt3 == 3'b110) begin // BLTU
+            Bimm = {{20{IR[31]}}, IR[7], IR[30:25], IR[11:8], 1'b0};
             rs = IR[19:15]; // rs1
             rt = IR[24:20]; // rs2
             if($unsigned(rsval) < $unsigned(rtval)) begin
@@ -149,8 +159,8 @@ module SingleCycleCPU (
                 next_PC = PC + 4;
             end
         end
-        if(op_code == 5'11000 && funt3 == 3'b101) begin // BGE
-            reg [31:0] Bimm = {{20{IR[31]}}, IR[7], IR[30:25], IR[11:8], 1'b0};
+        if(op_code == 5'b11000 && funt3 == 3'b101) begin // BGE
+            Bimm = {{20{IR[31]}}, IR[7], IR[30:25], IR[11:8], 1'b0};
             rs = IR[19:15]; // rs1
             rt = IR[24:20]; // rs2
             if($signed(rsval) >= $signed(rtval)) begin
@@ -159,8 +169,8 @@ module SingleCycleCPU (
                 next_PC = PC + 4;
             end
         end
-        if(op_code == 5'11000 && funt3 == 3'b111) begin // BGEU
-            reg [31:0] Bimm = {{20{IR[31]}}, IR[7], IR[30:25], IR[11:8], 1'b0};
+        if(op_code == 5'b11000 && funt3 == 3'b111) begin // BGEU
+            Bimm = {{20{IR[31]}}, IR[7], IR[30:25], IR[11:8], 1'b0};
             rs = IR[19:15]; // rs1
             rt = IR[24:20]; // rs2
             if($unsigned(rsval) >= $unsigned(rtval)) begin
@@ -169,36 +179,52 @@ module SingleCycleCPU (
                 next_PC = PC + 4;
             end
         end
-        if(op_code == 5'00000 && funt3 == 3'b000) begin // LB
-            reg [31:0] Iimm = {{20{IR[31]}}, IR[31:20]};
+        if(op_code == 5'b00000 && funt3 == 3'b000) begin // LB
+            Iimm = {{20{IR[31]}}, IR[31:20]};
             rs = IR[19:15]; // rs1
             rd = IR[11:7]; // rd
             MemAddr = rsval + Iimm;
-            case(MemAddr[1:0]) 
-                2'b00: Regin = {24{Memout[7]}, Memout[7:0]};
-                2'b01: Regin = {24{Memout[15]}, Memout[15:8]};
-                2'b10: Regin = {24{Memout[23]}, Memout[23:16]};
-                2'b11: Regin = {24{Memout[31]}, Memout[31:24]};
+            case(MemAddr[1:0])
+                2'b00: begin
+                    Regin[7:0] = Memout[7:0];
+                    Regin[31:8] = {24{Memout[7]}};
+                end
+                2'b01: begin
+                    Regin[7:0] = Memout[15:8];
+                    Regin[31:8] = {24{Memout[15]}};
+                end
+                2'b10: begin
+                    Regin[7:0] = Memout[23:16];
+                    Regin[31:8] = {24{Memout[23]}};
+                end
+                2'b11: begin
+                    Regin[7:0] = Memout[31:24];
+                    Regin[31:8] = {24{Memout[31]}};
+                end
             endcase
             RegWE = 1;
             next_PC = PC + 4;
         end
-        if(op_code == 5'00000 && funt3 == 3'b001) begin // LH
-            reg [31:0] Iimm = {{20{IR[31]}}, IR[31:20]};
+        if(op_code == 5'b00000 && funt3 == 3'b001) begin // LH
+            Iimm = {{20{IR[31]}}, IR[31:20]};
             rs = IR[19:15]; // rs1
             rd = IR[11:7]; // rd
             MemAddr = rsval + Iimm;
             case(MemAddr[1:0]) 
-                2'b00: Regin = {16{Memout[15]}, Memout[15:0]};
-                2'b01: Regin = {16{Memout[15]}, Memout[15:0]};
-                2'b10: Regin = {16{Memout[31]}, Memout[31:16]};
-                2'b11: Regin = {16{Memout[31]}, Memout[31:16]};
+                2'b00, 2'b01: begin
+                    Regin[15:0] = Memout[15:0];
+                    Regin[31:16] = {16{Memout[15]}};
+                end
+                2'b10, 2'b11: begin
+                    Regin[15:0] = Memout[31:16];
+                    Regin[31:16] = {16{Memout[31]}};
+                end
             endcase
             RegWE = 1;
             next_PC = PC + 4;
         end
-        if(op_code == 5'00000 && funt3 == 3'b010) begin // LW
-            reg [31:0] Iimm = {{20{IR[31]}}, IR[31:20]};
+        if(op_code == 5'b00000 && funt3 == 3'b010) begin // LW
+            Iimm = {{20{IR[31]}}, IR[31:20]};
             rs = IR[19:15]; // rs1
             rd = IR[11:7]; // rd
             MemAddr = rsval + Iimm;
@@ -206,36 +232,52 @@ module SingleCycleCPU (
             RegWE = 1;
             next_PC = PC + 4;
         end
-        if(op_code == 5'00000 && funt3 == 3'b100) begin // LBU
-            reg [31:0] Iimm = {{20{IR[31]}}, IR[31:20]};
+        if(op_code == 5'b00000 && funt3 == 3'b100) begin // LBU
+            Iimm = {{20{IR[31]}}, IR[31:20]};
             rs = IR[19:15]; // rs1
             rd = IR[11:7]; // rd
             MemAddr = rsval + Iimm;
-            case(MemAddr[1:0]) 
-                2'b00: Regin = {24{1'b0}, Memout[7:0]};
-                2'b01: Regin = {24{1'b0}, Memout[15:8]};
-                2'b10: Regin = {24{1'b0}, Memout[23:16]};
-                2'b11: Regin = {24{1'0}, Memout[31:24]};
+            case(MemAddr[1:0])
+                2'b00: begin
+                    Regin[7:0] = Memout[7:0];
+                    Regin[31:8] = 24'b0;
+                end
+                2'b01: begin
+                    Regin[7:0] = Memout[15:8];
+                    Regin[31:8] = 24'b0;                
+                end
+                2'b10: begin
+                    Regin[7:0] = Memout[23:16];
+                    Regin[31:8] = 24'b0;
+                end
+                2'b11: begin
+                    Regin[7:0] = Memout[31:24];
+                    Regin[31:8] = 24'b0;
+                end
             endcase
             RegWE = 1;
             next_PC = PC + 4;
         end
-        if(op_code == 5'00000 && funt3 == 3'b101) begin // LHU
-            reg [31:0] Iimm = {{20{IR[31]}}, IR[31:20]};
+        if(op_code == 5'b00000 && funt3 == 3'b101) begin // LHU
+            Iimm = {{20{IR[31]}}, IR[31:20]};
             rs = IR[19:15]; // rs1
             rd = IR[11:7]; // rd
             MemAddr = rsval + Iimm;
-            case(MemAddr[1:0]) 
-                2'b00: Regin = {16{1'b0}, Memout[15:0]};
-                2'b01: Regin = {16{1'b0}, Memout[15:0]};
-                2'b10: Regin = {16{1'b0}, Memout[31:16]};
-                2'b11: Regin = {16{1'b0}, Memout[31:16]};
+            case(MemAddr[1:0])
+                2'b00, 2'b01: begin
+                    Regin[15:0] = Memout[15:0];
+                    Regin[31:16] = 16'b0;
+                end
+                2'b10, 2'b11: begin
+                    Regin[15:0] = Memout[31:16];
+                    Regin[31:16] = 16'b0;
+                end
             endcase
             RegWE = 1;
             next_PC = PC + 4;
         end
-        if (op_code == 5'01000 && funt3 == 3'b000) begin // SB
-            reg [31:0] Simm = {{20{IR[31]}}, IR[31:25], IR[11:7]};
+        if (op_code == 5'b01000 && funt3 == 3'b000) begin // SB
+            Simm = {{20{IR[31]}}, IR[31:25], IR[11:7]};
             rs = IR[19:15]; // rs1
             rt = IR[24:20]; // rs2
             MemAddr = rsval + Simm;
@@ -249,8 +291,8 @@ module SingleCycleCPU (
             MemWE = 1;
             next_PC = PC + 4;
         end
-        if (op_code == 5'01000 && funt3 == 3'b001) begin // SH
-            reg [31:0] Simm = {{20{IR[31]}}, IR[31:25], IR[11:7]};
+        if (op_code == 5'b01000 && funt3 == 3'b001) begin // SH
+            Simm = {{20{IR[31]}}, IR[31:25], IR[11:7]};
             rs = IR[19:15]; // rs1
             rt = IR[24:20]; // rs2
             MemAddr = rsval + Simm;
@@ -264,8 +306,8 @@ module SingleCycleCPU (
             MemWE = 1;
             next_PC = PC + 4;
         end
-        if (op_code == 5'01000 && funt3 == 3'b010) begin // SW
-            reg [31:0] Simm = {{20{IR[31]}}, IR[31:25], IR[11:7]};
+        if (op_code == 5'b01000 && funt3 == 3'b010) begin // SW
+            Simm = {{20{IR[31]}}, IR[31:25], IR[11:7]};
             rs = IR[19:15]; // rs1
             rt = IR[24:20]; // rs2
             MemAddr = rsval + Simm;
@@ -273,7 +315,7 @@ module SingleCycleCPU (
             MemWE = 1;
             next_PC = PC + 4;
         end
-        if (op_code == 5'00100 && funt3 == 3'b000) begin // ADDI
+        if (op_code == 5'b00100 && funt3 == 3'b000) begin // ADDI
             ADDImm = {{20{IR[31]}}, IR[31:20]};
             rs = IR[19:15]; // rs1
             rd = IR[11:7]; // rd
@@ -281,11 +323,11 @@ module SingleCycleCPU (
             RegWE = 1;
             next_PC = PC + 4;
         end
-        if (op_code == 5'00100 && funt3 == 3'b010) begin // SLTI
+        if (op_code == 5'b00100 && funt3 == 3'b010) begin // SLTI
             SLTImm = {{20{IR[31]}}, IR[31:20]};
             rs = IR[19:15]; // rs1
             rd = IR[11:7]; // rd
-            if($signed(rsval) < SLTImm) begin // 将 rsval 视为有符号数
+            if($signed(rsval) < SLTImm) begin // 灏� rsval 瑙嗕负鏈夌鍙锋暟
                 Regin = 32'h1;
             end else begin
                 Regin = 32'h0;
@@ -293,11 +335,11 @@ module SingleCycleCPU (
             RegWE = 1;
             next_PC = PC + 4;
         end
-        if (op_code == 5'00100 && funt3 == 3'b011) begin // SLTIU
+        if (op_code == 5'b00100 && funt3 == 3'b011) begin // SLTIU
             SLTImm = {{20{IR[31]}}, IR[31:20]};
             rs = IR[19:15]; // rs1
             rd = IR[11:7]; // rd
-            if($unsigned(rsval) < SLTImm) begin // 将 rsval 视为无符号数
+            if($unsigned(rsval) < SLTImm) begin // 灏� rsval 瑙嗕负鏃犵鍙锋暟
                 Regin = 32'h1;
             end else begin
                 Regin = 32'h0;
@@ -305,7 +347,7 @@ module SingleCycleCPU (
             RegWE = 1;
             next_PC = PC + 4;
         end
-        if (op_code == 5'00100 && funt3 == 3'b100) begin // XORI
+        if (op_code == 5'b00100 && funt3 == 3'b100) begin // XORI
             XORImm = {{20{IR[31]}}, IR[31:20]};
             rs = IR[19:15]; // rs1
             rd = IR[11:7]; // rd
@@ -313,7 +355,7 @@ module SingleCycleCPU (
             RegWE = 1;
             next_PC = PC + 4;
         end
-        if (op_code == 5'00100 && funt3 == 3'b110) begin // ORI
+        if (op_code == 5'b00100 && funt3 == 3'b110) begin // ORI
             ORImm = {{20{IR[31]}}, IR[31:20]};
             rs = IR[19:15]; // rs1
             rd = IR[11:7]; // rd
@@ -321,7 +363,7 @@ module SingleCycleCPU (
             RegWE = 1;
             next_PC = PC + 4;
         end
-        if (op_code == 5'00100 && funt3 == 3'b111) begin // ANDI
+        if (op_code == 5'b00100 && funt3 == 3'b111) begin // ANDI
             ANDImm = {{20{IR[31]}}, IR[31:20]};
             rs = IR[19:15]; // rs1
             rd = IR[11:7]; // rd
@@ -329,7 +371,7 @@ module SingleCycleCPU (
             RegWE = 1;
             next_PC = PC + 4;
         end
-        if (op_code == 5'01100 && funt3 == 3'b001) begin // SLLI
+        if (op_code == 5'b01100 && funt3 == 3'b001) begin // SLLI
             SLLIshamt = IR[24:20];
             rs = IR[19:15]; // rs1
             rd = IR[11:7]; // rd
@@ -339,7 +381,7 @@ module SingleCycleCPU (
             end
             next_PC = PC + 4;
         end
-        if (op_code == 5'01100 && funt3 == 3'b101 && IR[30] == 0) begin // SRLI
+        if (op_code == 5'b01100 && funt3 == 3'b101 && IR[30] == 0) begin // SRLI
             SRLshamt = IR[24:20];
             rs = IR[19:15]; // rs1
             rd = IR[11:7]; // rd
@@ -349,7 +391,7 @@ module SingleCycleCPU (
             end 
             next_PC = PC + 4;
         end
-        if (op_code == 5'01100 && funt3 == 3'b101 && IR[30] == 1) begin // SRAI
+        if (op_code == 5'b01100 && funt3 == 3'b101 && IR[30] == 1) begin // SRAI
             SRAshamt = IR[24:20];
             rs = IR[19:15]; // rs1
             rd = IR[11:7]; // rd
@@ -359,7 +401,7 @@ module SingleCycleCPU (
             end
             next_PC = PC + 4;
         end
-        if (op_code == 5'01100 && funt3 == 3'b000 && IR[30] == 0) begin // ADD
+        if (op_code == 5'b01100 && funt3 == 3'b000 && IR[30] == 0) begin // ADD
             rs = IR[19:15]; // rs1
             rt = IR[24:20]; // rs2
             rd = IR[11:7]; // rd
@@ -367,7 +409,7 @@ module SingleCycleCPU (
             RegWE = 1;
             next_PC = PC + 4;
         end
-        if (op_code == 5'01100 && funt3 == 3'b000 && IR[30] == 1) begin // SUB
+        if (op_code == 5'b01100 && funt3 == 3'b000 && IR[30] == 1) begin // SUB
             rs = IR[19:15]; // rs1
             rt = IR[24:20]; // rs2
             rd = IR[11:7]; // rd
@@ -375,7 +417,7 @@ module SingleCycleCPU (
             RegWE = 1;
             next_PC = PC + 4;
         end
-        if (op_code == 5'01100 && funt3 == 3'b001) begin // SLL
+        if (op_code == 5'b01100 && funt3 == 3'b001) begin // SLL
             rs = IR[19:15]; // rs1
             rt = IR[24:20]; // rs2
             rd = IR[11:7]; // rd
@@ -383,7 +425,7 @@ module SingleCycleCPU (
             RegWE = 1;
             next_PC = PC + 4;
         end
-        if (op_code == 5'01100 && funt3 == 3'b010) begin // SLT
+        if (op_code == 5'b01100 && funt3 == 3'b010) begin // SLT
             rs = IR[19:15]; // rs1
             rt = IR[24:20]; // rs2
             rd = IR[11:7]; // rd
@@ -395,7 +437,7 @@ module SingleCycleCPU (
             RegWE = 1;
             next_PC = PC + 4;
         end
-        if (op_code == 5'01100 && funt3 == 3'b011) begin // SLTU
+        if (op_code == 5'b01100 && funt3 == 3'b011) begin // SLTU
             rs = IR[19:15]; // rs1
             rt = IR[24:20]; // rs2
             rd = IR[11:7]; // rd
@@ -407,7 +449,7 @@ module SingleCycleCPU (
             RegWE = 1;
             next_PC = PC + 4;
         end
-        if (op_code == 5'01100 && funt3 == 3'b100) begin // XOR
+        if (op_code == 5'b01100 && funt3 == 3'b100) begin // XOR
             rs = IR[19:15]; // rs1
             rt = IR[24:20]; // rs2
             rd = IR[11:7]; // rd
@@ -415,7 +457,7 @@ module SingleCycleCPU (
             RegWE = 1;
             next_PC = PC + 4;
         end
-        if (op_code == 5'01100 && funt3 == 3'b101 && IR[30] == 0) begin // SRL
+        if (op_code == 5'b01100 && funt3 == 3'b101 && IR[30] == 0) begin // SRL
             rs = IR[19:15]; // rs1
             rt = IR[24:20]; // rs2
             rd = IR[11:7]; // rd
@@ -423,7 +465,7 @@ module SingleCycleCPU (
             RegWE = 1;
             next_PC = PC + 4;
         end
-        if (op_code == 5'01100 && funt3 == 3'b101 && IR[30] == 1) begin // SRA
+        if (op_code == 5'b01100 && funt3 == 3'b101 && IR[30] == 1) begin // SRA
             rs = IR[19:15]; // rs1
             rt = IR[24:20]; // rs2
             rd = IR[11:7]; // rd
@@ -431,7 +473,7 @@ module SingleCycleCPU (
             RegWE = 1;
             next_PC = PC + 4;
         end        
-        if (op_code == 5'01100 && funt3 == 3'b110) begin // OR
+        if (op_code == 5'b01100 && funt3 == 3'b110) begin // OR
             rs = IR[19:15]; // rs1
             rt = IR[24:20]; // rs2
             rd = IR[11:7]; // rd
@@ -439,7 +481,7 @@ module SingleCycleCPU (
             RegWE = 1;
             next_PC = PC + 4;
         end
-        if (op_code == 5'01100 && funt3 == 3'b111) begin // AND
+        if (op_code == 5'b01100 && funt3 == 3'b111) begin // AND
             rs = IR[19:15]; // rs1
             rt = IR[24:20]; // rs2
             rd = IR[11:7]; // rd
@@ -447,8 +489,17 @@ module SingleCycleCPU (
             RegWE = 1;
             next_PC = PC + 4;
         end
+        if(op_code == 5'b11100 && IR[31:7] == 25'b0000000000000000000000000) begin // ECALL
+            rs = 5'h11;
+            rt = 5'h0a;
+            if(rsval == 32'h22) begin
+                LEDDATA = rtval;
+            end
+            next_PC = PC + 4;
+        end
         PC = next_PC;
     end
+    assign LED = LEDDATA;
     // interrupt
     MUX2x1 #(32) interrAddr(.Dout(EPCAddr_in), .A(next_PC), .B(InterrAddr), .Sel(InterrEN)); // 2-way mul for interrupt
     MUX2x1 #(32) EPCAddr(.Dout(PCADDR), .A(EPCAddr_in), .B(EPC_out), .Sel(uret));            // 2-way mul for epc interrupt
