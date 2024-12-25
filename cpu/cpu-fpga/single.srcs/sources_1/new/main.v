@@ -273,6 +273,180 @@ module SingleCycleCPU (
             MemWE = 1;
             next_PC = PC + 4;
         end
+        if (op_code == 5'00100 && funt3 == 3'b000) begin // ADDI
+            ADDImm = {{20{IR[31]}}, IR[31:20]};
+            rs = IR[19:15]; // rs1
+            rd = IR[11:7]; // rd
+            Regin = rsval + ADDImm;
+            RegWE = 1;
+            next_PC = PC + 4;
+        end
+        if (op_code == 5'00100 && funt3 == 3'b010) begin // SLTI
+            SLTImm = {{20{IR[31]}}, IR[31:20]};
+            rs = IR[19:15]; // rs1
+            rd = IR[11:7]; // rd
+            if($signed(rsval) < SLTImm) begin // 将 rsval 视为有符号数
+                Regin = 32'h1;
+            end else begin
+                Regin = 32'h0;
+            end
+            RegWE = 1;
+            next_PC = PC + 4;
+        end
+        if (op_code == 5'00100 && funt3 == 3'b011) begin // SLTIU
+            SLTImm = {{20{IR[31]}}, IR[31:20]};
+            rs = IR[19:15]; // rs1
+            rd = IR[11:7]; // rd
+            if($unsigned(rsval) < SLTImm) begin // 将 rsval 视为无符号数
+                Regin = 32'h1;
+            end else begin
+                Regin = 32'h0;
+            end
+            RegWE = 1;
+            next_PC = PC + 4;
+        end
+        if (op_code == 5'00100 && funt3 == 3'b100) begin // XORI
+            XORImm = {{20{IR[31]}}, IR[31:20]};
+            rs = IR[19:15]; // rs1
+            rd = IR[11:7]; // rd
+            Regin = rsval ^ XORImm;
+            RegWE = 1;
+            next_PC = PC + 4;
+        end
+        if (op_code == 5'00100 && funt3 == 3'b110) begin // ORI
+            ORImm = {{20{IR[31]}}, IR[31:20]};
+            rs = IR[19:15]; // rs1
+            rd = IR[11:7]; // rd
+            Regin = rsval | ORImm;
+            RegWE = 1;
+            next_PC = PC + 4;
+        end
+        if (op_code == 5'00100 && funt3 == 3'b111) begin // ANDI
+            ANDImm = {{20{IR[31]}}, IR[31:20]};
+            rs = IR[19:15]; // rs1
+            rd = IR[11:7]; // rd
+            Regin = rsval & ANDImm;
+            RegWE = 1;
+            next_PC = PC + 4;
+        end
+        if (op_code == 5'01100 && funt3 == 3'b001) begin // SLLI
+            SLLIshamt = IR[24:20];
+            rs = IR[19:15]; // rs1
+            rd = IR[11:7]; // rd
+            Regin = rsval << SLLIshamt;
+            if (SLLIshamt[4] == 0) begin
+                RegWE = 1;
+            end
+            next_PC = PC + 4;
+        end
+        if (op_code == 5'01100 && funt3 == 3'b101 && IR[30] == 0) begin // SRLI
+            SRLshamt = IR[24:20];
+            rs = IR[19:15]; // rs1
+            rd = IR[11:7]; // rd
+            Regin = rsval >> SRLshamt;
+            if (SRLshamt[4] == 0) begin
+                RegWE = 1;
+            end 
+            next_PC = PC + 4;
+        end
+        if (op_code == 5'01100 && funt3 == 3'b101 && IR[30] == 1) begin // SRAI
+            SRAshamt = IR[24:20];
+            rs = IR[19:15]; // rs1
+            rd = IR[11:7]; // rd
+            Regin = $signed(rsval) >>> SRAshamt;
+            if (SRAshamt[4] == 0) begin
+                RegWE = 1;
+            end
+            next_PC = PC + 4;
+        end
+        if (op_code == 5'01100 && funt3 == 3'b000 && IR[30] == 0) begin // ADD
+            rs = IR[19:15]; // rs1
+            rt = IR[24:20]; // rs2
+            rd = IR[11:7]; // rd
+            Regin = rsval + rtval;
+            RegWE = 1;
+            next_PC = PC + 4;
+        end
+        if (op_code == 5'01100 && funt3 == 3'b000 && IR[30] == 1) begin // SUB
+            rs = IR[19:15]; // rs1
+            rt = IR[24:20]; // rs2
+            rd = IR[11:7]; // rd
+            Regin = rsval - rtval;
+            RegWE = 1;
+            next_PC = PC + 4;
+        end
+        if (op_code == 5'01100 && funt3 == 3'b001) begin // SLL
+            rs = IR[19:15]; // rs1
+            rt = IR[24:20]; // rs2
+            rd = IR[11:7]; // rd
+            Regin = rsval << rtval[4:0];
+            RegWE = 1;
+            next_PC = PC + 4;
+        end
+        if (op_code == 5'01100 && funt3 == 3'b010) begin // SLT
+            rs = IR[19:15]; // rs1
+            rt = IR[24:20]; // rs2
+            rd = IR[11:7]; // rd
+            if($signed(rsval) < $signed(rtval)) begin
+                Regin = 32'h1;
+            end else begin
+                Regin = 32'h0;
+            end
+            RegWE = 1;
+            next_PC = PC + 4;
+        end
+        if (op_code == 5'01100 && funt3 == 3'b011) begin // SLTU
+            rs = IR[19:15]; // rs1
+            rt = IR[24:20]; // rs2
+            rd = IR[11:7]; // rd
+            if($unsigned(rsval) < $unsigned(rtval)) begin
+                Regin = 32'h1;
+            end else begin
+                Regin = 32'h0;
+            end
+            RegWE = 1;
+            next_PC = PC + 4;
+        end
+        if (op_code == 5'01100 && funt3 == 3'b100) begin // XOR
+            rs = IR[19:15]; // rs1
+            rt = IR[24:20]; // rs2
+            rd = IR[11:7]; // rd
+            Regin = rsval ^ rtval;
+            RegWE = 1;
+            next_PC = PC + 4;
+        end
+        if (op_code == 5'01100 && funt3 == 3'b101 && IR[30] == 0) begin // SRL
+            rs = IR[19:15]; // rs1
+            rt = IR[24:20]; // rs2
+            rd = IR[11:7]; // rd
+            Regin = rsval >> rtval[4:0];
+            RegWE = 1;
+            next_PC = PC + 4;
+        end
+        if (op_code == 5'01100 && funt3 == 3'b101 && IR[30] == 1) begin // SRA
+            rs = IR[19:15]; // rs1
+            rt = IR[24:20]; // rs2
+            rd = IR[11:7]; // rd
+            Regin = $signed(rsval) >>> rtval[4:0];
+            RegWE = 1;
+            next_PC = PC + 4;
+        end        
+        if (op_code == 5'01100 && funt3 == 3'b110) begin // OR
+            rs = IR[19:15]; // rs1
+            rt = IR[24:20]; // rs2
+            rd = IR[11:7]; // rd
+            Regin = rsval | rtval;
+            RegWE = 1;
+            next_PC = PC + 4;
+        end
+        if (op_code == 5'01100 && funt3 == 3'b111) begin // AND
+            rs = IR[19:15]; // rs1
+            rt = IR[24:20]; // rs2
+            rd = IR[11:7]; // rd
+            Regin = rsval & rtval;
+            RegWE = 1;
+            next_PC = PC + 4;
+        end
         PC = next_PC;
     end
     // interrupt

@@ -97,3 +97,71 @@ IR of Save:
 Load and store instructions transfer a value between the registers and memory. Loads are encoded in the I-type format and stores are S-type. The effective address is obtained by adding register rs1 to the sign-extended 12-bit offset. Loads copy a value from memory to register rd. Stores copy the value in register rs2 to memory.
 
 The LW instruction loads a 32-bit value from memory into rd. LH loads a 16-bit value from memory, then sign-extends to 32-bits before storing in rd. LHU loads a 16-bit value from memory but then zero extends to 32-bits before storing in rd. LB and LBU are defined analogously for 8-bit values. The SW, SH, and SB instructions store 32-bit, 16-bit, and 8-bit values from the low bits of register rs2 to memory.
+
+
+***
+
+## Part II (zh)
+- ADDI
+  把符号位扩展的立即数加到寄存器 x[rs1]上，结果写入 x[rd]。忽略算术溢出。
+- SLTI
+  小于立即数则置位(Set if Less Than Immediate). I-type, RV32I and RV64I.
+  比较 x[rs1]和有符号扩展的 immediate，如果 x[rs1]更小，向 x[rd]写入 1，否则写入 0。
+- SLTIU 
+  无符号小于立即数则置位(Set if Less Than Immediate, Unsigned). I-type, RV32I and RV64I.
+  比较 x[rs1]和有符号扩展的 immediate，比较时视为无符号数。如果 x[rs1]更小，向 x[rd]写入1，否则写入 0。
+- XORI
+  立即数异或(Exclusive-OR Immediate). I-type, RV32I and RV64I.
+  x[rs1]和有符号扩展的 immediate 按位异或，结果写入 x[rd]。
+- ORI
+  立即数取或(OR Immediate). R-type, RV32I and RV64I.
+  把寄存器 x[rs1]和有符号扩展的立即数 immediate 按位取或，结果写入 x[rd]。
+- ANDI
+  与立即数 (And Immediate). I-type, RV32I and RV64I.
+  把符号位扩展的立即数和寄存器 x[rs1]上的值进行位与，结果写入 x[rd]。
+- SLLI
+  立即数逻辑左移(Shift Left Logical Immediate). I-type, RV32I and RV64I.
+  把寄存器x[rs1]左移shamt位，空出的位置填入0，结果写入x[rd]。对于RV32I，仅当shamt[5]=0时，指令才是有效的。
+- SRLI
+  立即数逻辑右移(Shift Right Logical Immediate). I-type, RV32I and RV64I.
+  把寄存器x[rs1]右移shamt位，空出的位置填入0，结果写入x[rd]。对于RV32I，仅当shamt[5]=0时，指令才是有效的。
+- SRAI
+  立即数算术右移字(Shift Right Arithmetic Word Immediate). I-type, RV64I only.
+  把寄存器 x[rs1]的低 32 位右移 shamt 位，空位用 x[rs1][31]填充，结果进行有符号扩展后写入 x[rd]。仅当 shamt[5]=0 时指令有效。
+- ADD 
+  加 (Add). RV32IC and RV64IC.
+  扩展形式为 add rd, rd, rs2. rd=x0 或 rs2=x0 时非法。
+- SUB
+  减(Substract). R-type, RV32I and RV64I.
+  x[rs1]减去 x[rs2]，结果写入 x[rd]。忽略算术溢出。
+- SLL 
+  逻辑左移(Shift Left Logical). R-type, RV32I and RV64I.
+  把寄存器 x[rs1]左移 x[rs2]位，空出的位置填入 0，结果写入 x[rd]。x[rs2]的低 5 位（如果是RV64I 则是低 6 位）代表移动位数，其高位则被忽略。
+- SLT
+  小于则置位(Set if Less Than). R-type, RV32I and RV64I.
+  比较 x[rs1]和 x[rs2]中的数，如果 x[rs1]更小，向 x[rd]写入 1，否则写入 0。
+- SLTU
+  无符号小于则置位(Set if Less Than, Unsigned). R-type, RV32I and RV64I.
+  比较 x[rs1]和 x[rs2]，比较时视为无符号数。如果 x[rs1]更小，向 x[rd]写入 1，否则写入 0。
+- XOR
+  异或(Exclusive-OR). R-type, RV32I and RV64I.
+  x[rs1]和 x[rs2]按位异或，结果写入 x[rd]。
+- SRL
+  逻辑右移(Shift Right Logical). R-type, RV32I and RV64I.
+  把寄存器 x[rs1]右移 x[rs2]位，空出的位置填入 0，结果写入 x[rd]。x[rs2]的低 5 位（如果是RV64I 则是低 6 位）代表移动位数，其高位则被忽略。
+- SRA
+  算术右移(Shift Right Arithmetic). R-type, RV32I and RV64I.
+  把寄存器 x[rs1]右移 x[rs2]位，空位用 x[rs1]的最高位填充，结果写入 x[rd]。x[rs2]的低 5 位（如果是 RV64I 则是低 6 位）为移动位数，高位则被忽略。
+- OR
+  取或(OR). R-type, RV32I and RV64I.
+  把寄存器 x[rs1]和寄存器 x[rs2]按位取或，结果写入 x[rd]。
+- AND
+  与 (And). R-type, RV32I and RV64I.
+  将寄存器 x[rs1]和寄存器 x[rs2]位与的结果写入 x[rd]。
+## TODO:
+- FENCE
+  同步内存和 I/O(Fence Memory and I/O). I-type, RV32I and RV64I.
+  在后续指令中的内存和 I/O 访问对外部（例如其他线程）可见之前，使这条指令之前的内存及 I/O 访问对外部可见。比特中的第 3,2,1 和 0 位分别对应于设备输入，设备输出，内存读写。例如 fence r,rw，将前面读取与后面的读取和写入排序，使用 pred = 0010 和 succ = 0011进行编码。如果省略了参数，则表示 fence iorw, iorw，即对所有访存请求进行排序。
+- ECALL & EBREAK
+  These two instructions cause a precise requested trap to the supporting execution environment.
+  The ECALL instruction is used to make a service request to the execution environment. The EEI will define how parameters for the service request are passed, but usually these will be in defined locations in the integer register file.
