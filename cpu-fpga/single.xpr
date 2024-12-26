@@ -4,7 +4,7 @@
 <!-- Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.                   -->
 <!-- Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.   -->
 
-<Project Product="Vivado" Version="7" Minor="67" Path="C:/Data/project/hustcs-hardware-training-teamwork/cpu-fpga/single.xpr">
+<Project Product="Vivado" Version="7" Minor="67" Path="C:/Data/hustcs-hardware-training-teamwork/cpu-fpga/single.xpr">
   <DefaultLaunch Dir="$PRUNDIR"/>
   <Configuration>
     <Option Name="Id" Val="72efdbbe71a442129e7a4b17b441d519"/>
@@ -58,20 +58,20 @@
     <Option Name="IPUserFilesDir" Val="$PIPUSERFILESDIR"/>
     <Option Name="IPStaticSourceDir" Val="$PIPUSERFILESDIR/ipstatic"/>
     <Option Name="EnableBDX" Val="FALSE"/>
-    <Option Name="WTXSimLaunchSim" Val="253"/>
+    <Option Name="WTXSimLaunchSim" Val="258"/>
     <Option Name="WTModelSimLaunchSim" Val="0"/>
     <Option Name="WTQuestaLaunchSim" Val="0"/>
     <Option Name="WTIesLaunchSim" Val="0"/>
     <Option Name="WTVcsLaunchSim" Val="0"/>
     <Option Name="WTRivieraLaunchSim" Val="0"/>
     <Option Name="WTActivehdlLaunchSim" Val="0"/>
-    <Option Name="WTXSimExportSim" Val="1"/>
-    <Option Name="WTModelSimExportSim" Val="1"/>
-    <Option Name="WTQuestaExportSim" Val="1"/>
+    <Option Name="WTXSimExportSim" Val="2"/>
+    <Option Name="WTModelSimExportSim" Val="2"/>
+    <Option Name="WTQuestaExportSim" Val="2"/>
     <Option Name="WTIesExportSim" Val="0"/>
-    <Option Name="WTVcsExportSim" Val="1"/>
-    <Option Name="WTRivieraExportSim" Val="1"/>
-    <Option Name="WTActivehdlExportSim" Val="1"/>
+    <Option Name="WTVcsExportSim" Val="2"/>
+    <Option Name="WTRivieraExportSim" Val="2"/>
+    <Option Name="WTActivehdlExportSim" Val="2"/>
     <Option Name="GenerateIPUpgradeLog" Val="TRUE"/>
     <Option Name="XSimRadix" Val="hex"/>
     <Option Name="XSimTimeUnit" Val="ns"/>
@@ -266,7 +266,7 @@
       <Filter Type="Constrs"/>
       <File Path="$PSRCDIR/constrs_1/imports/board/Nexys4DDR_Master.xdc">
         <FileInfo>
-          <Attr Name="ImportPath" Val="$PPRDIR/../Nexys4DDR_Master.xdc"/>
+          <Attr Name="ImportPath" Val="$PPRDIR/../../project/hustcs-hardware-training-teamwork/Nexys4DDR_Master.xdc"/>
           <Attr Name="ImportTime" Val="1711065159"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>

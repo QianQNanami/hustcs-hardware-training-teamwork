@@ -6,9 +6,7 @@ module InstructionROM (
 );
     reg [31:0] mem [0:2**20-1];
     initial begin
-        // C:/Data/project/hustcs-hardware-training-teamwork/src/vga_test/final.hex
-        // C:/Data/project/HUST_RISC-V_CPU/FPGA/bin/risc-v-benchmark_ccab.hex
-        $readmemh("C:/Data/project/hustcs-hardware-training-teamwork/src/vga_test/final.hex", mem, 0, 2**20-1);
+        $readmemh("C:/Data/hustcs-hardware-training-teamwork/example/vga_asm_test/final.hex", mem, 0, 2**20-1);
     end
     assign Data = mem[Addr];
 endmodule

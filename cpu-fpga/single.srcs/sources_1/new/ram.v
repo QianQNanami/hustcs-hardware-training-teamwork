@@ -12,8 +12,8 @@ module RAM (
     output wire [11:0] vdata
 );
     localparam SCALE_RATIO = 32; // TODO: change it!
-    reg [31:0] mem [0:2**20-1];
-    reg [11:0] vram [0:2**20-1];
+    reg [31:0] mem [0:2**10-1];
+    reg [11:0] vram [0:2**10-1];
     
 //    integer i;
    initial begin
@@ -41,7 +41,7 @@ module RAM (
     
     assign Dout = mem[Addr];
     assign vdata = ((vaddr_x == 11'h7ff) | (vaddr_y == 10'h3ff)) ? 12'h000 :
-                (vram[vaddr_y / SCALE_RATIO * (1024 / SCALE_RATIO) + vaddr_x / SCALE_RATIO] === 12'bx) ? 12'h000 :
-                (vram[vaddr_y / SCALE_RATIO * (1024 / SCALE_RATIO) + vaddr_x / SCALE_RATIO]);
+                (mem[vaddr_y / SCALE_RATIO * (1024 / SCALE_RATIO) + vaddr_x / SCALE_RATIO][11:0] === 12'bx) ? 12'h000 :
+                (mem[vaddr_y / SCALE_RATIO * (1024 / SCALE_RATIO) + vaddr_x / SCALE_RATIO][11:0]);
 
 endmodule
