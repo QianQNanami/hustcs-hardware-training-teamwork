@@ -16,19 +16,19 @@ module RAM (
     reg [11:0] vram [0:2**20-1];
     
 //    integer i;
-   initial begin
-    //    for (i = 0; i < 2**20; i = i + 1) begin
-    //        mem[i] = 0;
-    //        vram[i] = 0;
-    //    end
-    // vram[100] = 12'hf00;
-    // vram[200] = 12'h0f0;
-    // vram[300] = 12'h00f;
-    // vram[400] = 12'hff0;
-    // vram[500] = 12'hf0f;
-    // vram[600] = 12'h0ff;
-    // vram[700] = 12'hfff;
-   end
+//    initial begin
+//        for (i = 0; i < 2**20; i = i + 1) begin
+//            mem[i] = 0;
+//            vram[i] = 0;
+//        end
+//     mem[100] = 32'hf00;
+//     mem[200] = 32'h0f0;
+//     mem[300] = 32'h00f;
+//     mem[400] = 32'hff0;
+//     mem[500] = 32'hf0f;
+//     mem[600] = 32'h0ff;
+//     mem[700] = 32'hfff;
+//    end
 
     always @(posedge Clk) begin
         if (str) begin
@@ -40,8 +40,15 @@ module RAM (
     end
     
     assign Dout = mem[Addr];
+
+    wire [19:0] vram_x;
+    wire [19:0] vram_y;
+
+    assign vram_x = vaddr_x / 16;  // TODO: change it!
+    assign vram_y = vaddr_y / 16;  // TODO: change it!
+
     assign vdata = ((vaddr_x == 11'h7ff) | (vaddr_y == 10'h3ff)) ? 12'h000 :
-                (mem[vaddr_y / SCALE_RATIO * (1024 / SCALE_RATIO) + vaddr_x / SCALE_RATIO][11:0] === 12'bx) ? 12'h000 :
-                (mem[vaddr_y / SCALE_RATIO * (1024 / SCALE_RATIO) + vaddr_x / SCALE_RATIO][11:0]);
+                (mem[vram_y * 64 + vram_x] === 32'bx) ? 12'h000 :
+                (mem[vram_y * 64 + vram_x][11:0]);
 
 endmodule

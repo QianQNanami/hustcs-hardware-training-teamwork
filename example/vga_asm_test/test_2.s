@@ -20,7 +20,9 @@
     sw t1, 0(t0)            # 将 t1 的值存储到地址 t0 (即 0x10008)
     
 loop:
-    beq x0, x0, loop        # endless loop
+    nop        # endless loop
+    nop
+    j loop
 
 
 # UP 键中断

@@ -26,6 +26,8 @@ module SingleCycleCPU_tb();
         UP = 1'b0;
         #100 UP = 1'b1;
         #101 UP = 1'b0;
+        #102 UP = 1'b1;
+        #103 UP = 1'b0;
     end
 
     always #5 clk = ~clk;

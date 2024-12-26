@@ -1,0 +1,24 @@
+#-----------------------------------------------------------
+# Vivado v2024.1 (64-bit)
+# SW Build 5076996 on Wed May 22 18:37:14 MDT 2024
+# IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
+# SharedData Build 5076995 on Wed May 22 18:29:18 MDT 2024
+# Start of session at: Thu Dec 26 21:50:59 2024
+# Process ID: 37296
+# Current directory: C:/Data/hustcs-hardware-training-teamwork/cpu-fpga/single.runs/impl_1
+# Command line: vivado.exe -log Nexys4DDR.vdi -applog -product Vivado -messageDb vivado.pb -mode batch -source Nexys4DDR.tcl -notrace
+# Log file: C:/Data/hustcs-hardware-training-teamwork/cpu-fpga/single.runs/impl_1/Nexys4DDR.vdi
+# Journal file: C:/Data/hustcs-hardware-training-teamwork/cpu-fpga/single.runs/impl_1\vivado.jou
+# Running On        :ThinkBook
+# Platform          :Windows Server 2016 or Windows 10
+# Operating System  :22631
+# Processor Detail  :12th Gen Intel(R) Core(TM) i5-12500H
+# CPU Frequency     :3110 MHz
+# CPU Physical cores:12
+# CPU Logical cores :16
+# Host memory       :16892 MB
+# Swap memory       :25857 MB
+# Total Virtual     :42749 MB
+# Available Virtual :21898 MB
+#-----------------------------------------------------------
+source Nexys4DDR.tcl -notrace
