@@ -11,9 +11,9 @@ module RAM (
     input wire [10:0] vaddr_y,
     output wire [11:0] vdata
 );
-    localparam SCALE_RATIO = 32; // TODO: change it!
-    reg [31:0] mem [0:2**10-1];
-    reg [11:0] vram [0:2**10-1];
+    localparam SCALE_RATIO = 16; // TODO: change it!
+    reg [31:0] mem [0:2**20-1];
+    reg [11:0] vram [0:2**20-1];
     
 //    integer i;
    initial begin
