@@ -44,7 +44,7 @@ module SingleCycleCPU (
         .RST(1'b0)
     );
     InstructionROM ROM_instruction(
-        .Addr(PC[21:2]),
+        .Addr(PC[11:2]),
         .Data(IR)
     );
     Adder #(.WIDTH(32)) adder1(

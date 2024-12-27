@@ -60,8 +60,8 @@ module Scheduler(IRR1, IRR2, IRR3, IRR4, IRR5, interr, uret1, uret2, uret3, uret
 
     PriorityEncoder P(.inputs({IRR5, IRR4, IRR3, IRR2, IRR1}), .interr(interr), .encoded(choice));
     //Interrupt handler Address
-    mux8x3 mux(.out(interrAddr), .in0(32'h0030), .in1(32'h003c), .in2(32'h0), .in3(32'h0048),    // TODO: change to right address
-            .in4(32'h0054), .in5(32'h0), .in6(32'h0), .in7(32'h0), .sel(choice));
+    mux8x3 mux(.out(interrAddr), .in0(32'h3c), .in1(32'h60), .in2(32'h60), .in3(32'h84),    // TODO: change to right address
+            .in4(32'ha8), .in5(32'h0), .in6(32'h0), .in7(32'h0), .sel(choice));
     Register #(3) retReg(.Clk(CLK), .WE(interrEN), .Din(choice), .Dout(uret_choice), .RST(1'b0));
     
     assign urettmp = (uret_choice == 3'b000) ? 5'b00001 :
